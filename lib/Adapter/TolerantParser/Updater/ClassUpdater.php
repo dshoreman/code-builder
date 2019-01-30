@@ -7,7 +7,6 @@ use Microsoft\PhpParser\Node\Statement\ClassDeclaration;
 use Phpactor\CodeBuilder\Domain\Prototype\ExtendsClass;
 use Phpactor\CodeBuilder\Adapter\TolerantParser\Edits;
 use Phpactor\CodeBuilder\Domain\Prototype\ImplementsInterfaces;
-use Phpactor\CodeBuilder\Domain\Renderer;
 use Microsoft\PhpParser\Node\ClassConstDeclaration;
 use Microsoft\PhpParser\Node\MethodDeclaration;
 use Microsoft\PhpParser\Node\PropertyDeclaration;
@@ -16,25 +15,8 @@ use Microsoft\PhpParser\Node\Expression\Variable;
 use Microsoft\PhpParser\Node\Expression\AssignmentExpression;
 use Phpactor\CodeBuilder\Domain\Prototype\Type;
 
-class ClassUpdater
+class ClassUpdater extends ClassLikeUpdater
 {
-    /**
-     * @var Renderer
-     */
-    private $renderer;
-
-    /**
-     * @var MethodUpdater
-     */
-    private $methodUpdater;
-
-
-    public function __construct(Renderer $renderer)
-    {
-        $this->renderer = $renderer;
-        $this->methodUpdater = new ClassMethodUpdater($renderer);
-    }
-
     public function updateClass(Edits $edits, ClassPrototype $classPrototype, ClassDeclaration $classNode)
     {
         if (false === $classPrototype->applyUpdate()) {

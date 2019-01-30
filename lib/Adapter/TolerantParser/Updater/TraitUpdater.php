@@ -5,7 +5,6 @@ namespace Phpactor\CodeBuilder\Adapter\TolerantParser\Updater;
 use Phpactor\CodeBuilder\Domain\Prototype\TraitPrototype;
 use Microsoft\PhpParser\Node\Statement\TraitDeclaration;
 use Phpactor\CodeBuilder\Adapter\TolerantParser\Edits;
-use Phpactor\CodeBuilder\Domain\Renderer;
 use Microsoft\PhpParser\Node\ClassConstDeclaration;
 use Microsoft\PhpParser\Node\MethodDeclaration;
 use Microsoft\PhpParser\Node\PropertyDeclaration;
@@ -14,25 +13,8 @@ use Microsoft\PhpParser\Node\Expression\Variable;
 use Microsoft\PhpParser\Node\Expression\AssignmentExpression;
 use Phpactor\CodeBuilder\Domain\Prototype\Type;
 
-class TraitUpdater
+class TraitUpdater extends ClassLikeUpdater
 {
-    /**
-     * @var Renderer
-     */
-    private $renderer;
-
-    /**
-     * @var MethodUpdater
-     */
-    private $methodUpdater;
-
-
-    public function __construct(Renderer $renderer)
-    {
-        $this->renderer = $renderer;
-        $this->methodUpdater = new ClassMethodUpdater($renderer);
-    }
-
     public function updateTrait(Edits $edits, TraitPrototype $classPrototype, TraitDeclaration $classNode)
     {
         if (false === $classPrototype->applyUpdate()) {
