@@ -9,8 +9,6 @@ use Microsoft\PhpParser\Node\ClassConstDeclaration;
 use Microsoft\PhpParser\Node\MethodDeclaration;
 use Microsoft\PhpParser\Node\PropertyDeclaration;
 use Microsoft\PhpParser\Node;
-use Microsoft\PhpParser\Node\Expression\Variable;
-use Microsoft\PhpParser\Node\Expression\AssignmentExpression;
 use Phpactor\CodeBuilder\Domain\Prototype\Type;
 
 class TraitUpdater extends ClassLikeUpdater
@@ -117,21 +115,5 @@ class TraitUpdater extends ClassLikeUpdater
                 $edits->after($lastProperty, PHP_EOL);
             }
         }
-    }
-
-    private function resolvePropertyName(Node $property)
-    {
-        if ($property instanceof Variable) {
-            return $property->getName();
-        }
-
-        if ($property instanceof AssignmentExpression) {
-            return $this->resolvePropertyName($property->leftOperand);
-        }
-
-        throw new \InvalidArgumentException(sprintf(
-            'Do not know how to resolve property elemnt of type "%s"',
-            get_class($property)
-        ));
     }
 }
