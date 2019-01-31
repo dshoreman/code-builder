@@ -70,47 +70,4 @@ class ClassUpdater extends ClassLikeUpdater
 
         $edits->replace($classNode->classInterfaceClause, ' implements ' . $names);
     }
-
-    private function updateProperties(Edits $edits, ClassPrototype $classPrototype, ClassDeclaration $classNode)
-    {
-        if (count($classPrototype->properties()) === 0) {
-            return;
-        }
-
-        $lastProperty = $classNode->classMembers->openBrace;
-        $nextMember = null;
-
-        $memberDeclarations = $classNode->classMembers->classMemberDeclarations;
-        $existingPropertyNames = [];
-        foreach ($memberDeclarations as $memberNode) {
-            if (null === $nextMember) {
-                $nextMember = $memberNode;
-            }
-
-            if ($memberNode instanceof PropertyDeclaration) {
-                foreach ($memberNode->propertyElements->getElements() as $property) {
-                    $existingPropertyNames[] = $this->resolvePropertyName($property);
-                }
-                $lastProperty = $memberNode;
-                $nextMember = next($memberDeclarations) ?: $nextMember;
-                prev($memberDeclarations);
-            }
-        }
-
-        foreach ($classPrototype->properties()->notIn($existingPropertyNames) as $property) {
-            // if property type exists then the last property has a docblock - add a line break
-            if ($lastProperty instanceof PropertyDeclaration && $property->type() != Type::none()) {
-                $edits->after($lastProperty, PHP_EOL);
-            }
-
-            $edits->after(
-                $lastProperty,
-                PHP_EOL . $edits->indent($this->renderer->render($property), 1)
-            );
-
-            if ($classPrototype->properties()->isLast($property) && $nextMember instanceof MethodDeclaration) {
-                $edits->after($lastProperty, PHP_EOL);
-            }
-        }
-    }
 }
