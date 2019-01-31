@@ -2,8 +2,10 @@
 
 namespace Phpactor\CodeBuilder\Adapter\TolerantParser\Updater;
 
+use Phpactor\CodeBuilder\Domain\Prototype\ClassLikePrototype;
 use Phpactor\CodeBuilder\Domain\Prototype\TraitPrototype;
 use Microsoft\PhpParser\Node\Statement\TraitDeclaration;
+use Microsoft\PhpParser\Node\StatementNode;
 use Phpactor\CodeBuilder\Adapter\TolerantParser\Edits;
 use Microsoft\PhpParser\Node\ClassConstDeclaration;
 use Microsoft\PhpParser\Node\MethodDeclaration;
@@ -25,7 +27,7 @@ class TraitUpdater extends ClassLikeUpdater
         $this->methodUpdater->updateMethods($edits, $classPrototype, $classNode);
     }
 
-    private function updateConstants(Edits $edits, TraitPrototype $classPrototype, TraitDeclaration $classNode)
+    protected function updateConstants(Edits $edits, ClassLikePrototype $classPrototype, StatementNode $classNode)
     {
         if (count($classPrototype->constants()) === 0) {
             return;

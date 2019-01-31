@@ -3,10 +3,14 @@
 namespace Phpactor\CodeBuilder\Adapter\TolerantParser\Updater;
 
 use Microsoft\PhpParser\Node;
-use Microsoft\PhpParser\Node\Expression\Variable;
+use Microsoft\PhpParser\Node\ClassConstDeclaration;
 use Microsoft\PhpParser\Node\Expression\AssignmentExpression;
+use Microsoft\PhpParser\Node\Expression\Variable;
 use Microsoft\PhpParser\Node\MethodDeclaration;
 use Microsoft\PhpParser\Node\PropertyDeclaration;
+use Microsoft\PhpParser\Node\StatementNode;
+use Phpactor\CodeBuilder\Adapter\TolerantParser\Edits;
+use Phpactor\CodeBuilder\Domain\Prototype\ClassLikePrototype;
 use Phpactor\CodeBuilder\Domain\Prototype\Type;
 use Phpactor\CodeBuilder\Domain\Renderer;
 
@@ -42,6 +46,37 @@ abstract class ClassLikeUpdater
             'Do not know how to resolve property element of type "%s"',
             get_class($property)
         ));
+    }
+
+    protected function updateConstants(Edits $edits, ClassLikePrototype $classPrototype, StatementNode $classNode)
+    {
+        if (count($classPrototype->constants()) === 0) {
+            return;
+        }
+
+        $lastConstant = $classNode->classMembers->openBrace;
+        $nextMember = null;
+
+        $memberDeclarations = $classNode->classMembers->classMemberDeclarations;
+        $existingConstantNames = [];
+
+        foreach ($memberDeclarations as $memberNode) {
+            if (null === $nextMember) {
+                $nextMember = $memberNode;
+            }
+
+            if ($memberNode instanceof ClassConstDeclaration) {
+                /** @var ConstDeclaration $memberNode */
+                foreach ($memberNode->constElements->getElements() as $variable) {
+                    $existingConstantNames[] = $variable->getName();
+                }
+                $lastConstant = $memberNode;
+                $nextMember = next($memberDeclarations) ?: $nextMember;
+                prev($memberDeclarations);
+            }
+        }
+
+        $this->updatePrototypeConstants($classPrototype, $existingConstantNames, $lastConstant, $edits, $nextMember);
     }
 
     protected function updatePrototypeConstants($classPrototype, $existingConstantNames, $lastConstant, $edits, $nextMember)
