@@ -98,24 +98,7 @@ class ClassUpdater extends ClassLikeUpdater
             }
         }
 
-        foreach ($classPrototype->constants()->notIn($existingConstantNames) as $constant) {
-            // if constant type exists then the last constant has a docblock - add a line break
-            if ($lastConstant instanceof ConstantDeclaration && $constant->type() != Type::none()) {
-                $edits->after($lastConstant, PHP_EOL);
-            }
-
-            $edits->after(
-                $lastConstant,
-                PHP_EOL . $edits->indent($this->renderer->render($constant), 1)
-            );
-
-            if ($classPrototype->constants()->isLast($constant) && (
-                $nextMember instanceof MethodDeclaration ||
-                $nextMember instanceof PropertyDeclaration
-            )) {
-                $edits->after($lastConstant, PHP_EOL);
-            }
-        }
+        $this->updatePrototypeConstants($classPrototype, $existingConstantNames, $lastConstant, $edits, $nextMember);
     }
 
     private function updateProperties(Edits $edits, ClassPrototype $classPrototype, ClassDeclaration $classNode)
