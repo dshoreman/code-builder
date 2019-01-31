@@ -61,7 +61,7 @@ abstract class ClassLikeUpdater
                 break;
             case 'TraitDeclaration':
                 $lastConstant = $classNode->traitMembers->openBrace;
-                $memberDeclarations = $classNode->traitMembers->classMemberDeclarations;
+                $memberDeclarations = $classNode->traitMembers->traitMemberDeclarations;
                 break;
             default:
                 throw new \InvalidArgumentException(sprintf(
@@ -122,7 +122,7 @@ abstract class ClassLikeUpdater
                 break;
             case 'TraitDeclaration':
                 $lastProperty = $classNode->traitMembers->openBrace;
-                $memberDeclarations = $classNode->traitMembers->classMemberDeclarations;
+                $memberDeclarations = $classNode->traitMembers->traitMemberDeclarations;
                 break;
             default:
                 throw new \InvalidArgumentException(sprintf(
