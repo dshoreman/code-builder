@@ -27,37 +27,6 @@ class TraitUpdater extends ClassLikeUpdater
         $this->methodUpdater->updateMethods($edits, $classPrototype, $classNode);
     }
 
-    protected function updateConstants(Edits $edits, ClassLikePrototype $classPrototype, StatementNode $classNode)
-    {
-        if (count($classPrototype->constants()) === 0) {
-            return;
-        }
-
-        $lastConstant = $classNode->traitMembers->openBrace;
-        $nextMember = null;
-
-        $memberDeclarations = $classNode->traitMembers->classMemberDeclarations;
-        $existingConstantNames = [];
-
-        foreach ($memberDeclarations as $memberNode) {
-            if (null === $nextMember) {
-                $nextMember = $memberNode;
-            }
-
-            if ($memberNode instanceof ClassConstDeclaration) {
-                /** @var ConstDeclaration $memberNode */
-                foreach ($memberNode->constElements->getElements() as $variable) {
-                    $existingConstantNames[] = $variable->getName();
-                }
-                $lastConstant = $memberNode;
-                $nextMember = next($memberDeclarations) ?: $nextMember;
-                prev($memberDeclarations);
-            }
-        }
-
-        $this->updatePrototypeConstants($classPrototype, $existingConstantNames, $lastConstant, $edits, $nextMember);
-    }
-
     private function updateProperties(Edits $edits, TraitPrototype $classPrototype, TraitDeclaration $classNode)
     {
         if (count($classPrototype->properties()) === 0) {

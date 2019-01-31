@@ -54,10 +54,23 @@ abstract class ClassLikeUpdater
             return;
         }
 
-        $lastConstant = $classNode->classMembers->openBrace;
-        $nextMember = null;
+        switch ($classNode->getNodeKindName()) {
+            case 'ClassDeclaration':
+                $lastConstant = $classNode->classMembers->openBrace;
+                $memberDeclarations = $classNode->classMembers->classMemberDeclarations;
+                break;
+            case 'TraitDeclaration':
+                $lastConstant = $classNode->traitMembers->openBrace;
+                $memberDeclarations = $classNode->traitMembers->classMemberDeclarations;
+                break;
+            default:
+                throw new \InvalidArgumentException(sprintf(
+                    'Do not know how to handle class node declaration type "%s"',
+                    $classNode->getNodeKindName()
+                ));
+        }
 
-        $memberDeclarations = $classNode->classMembers->classMemberDeclarations;
+        $nextMember = null;
         $existingConstantNames = [];
 
         foreach ($memberDeclarations as $memberNode) {
@@ -76,11 +89,6 @@ abstract class ClassLikeUpdater
             }
         }
 
-        $this->updatePrototypeConstants($classPrototype, $existingConstantNames, $lastConstant, $edits, $nextMember);
-    }
-
-    protected function updatePrototypeConstants($classPrototype, $existingConstantNames, $lastConstant, $edits, $nextMember)
-    {
         foreach ($classPrototype->constants()->notIn($existingConstantNames) as $constant) {
             // if constant type exists then the last constant has a docblock - add a line break
             if ($lastConstant instanceof ConstantDeclaration && $constant->type() != Type::none()) {
